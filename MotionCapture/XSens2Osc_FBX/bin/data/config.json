@@ -1,0 +1,6 @@
+{
+    "oscReceivePort": 6000,
+    "oscSendPort": 9007,
+    "oscSendAddress": "127.0.0.1",
+    "oscSendRate": 50.0
+}

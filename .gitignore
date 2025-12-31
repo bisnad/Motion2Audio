@@ -45,3 +45,7 @@
 /Transformer/Motion2Audio_Transformer_Music2Latent/Training/common/__pycache__
 /Transformer/Motion2Audio_Transformer_Music2Latent/Training/music2latent/models
 /Transformer/Motion2Audio_Transformer_Music2Latent/Inference/music2latent/models
+/MotionCapture/MocapPlayer/common/__pycache__
+/MotionCapture/MocapPlayer/__pycache__
+/MotionCapture/XSens2Osc_FBX/.vs
+/MotionCapture/XSens2Osc_FBX/obj
