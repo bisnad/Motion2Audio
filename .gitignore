@@ -49,3 +49,4 @@
 /MotionCapture/MocapPlayer/__pycache__
 /MotionCapture/XSens2Osc_FBX/.vs
 /MotionCapture/XSens2Osc_FBX/obj
+/Transformer/Motion2Audio_Transformer_VAE_Vocos/Training/.spyproject

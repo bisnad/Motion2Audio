@@ -49,45 +49,11 @@ print('Using {} device'.format(device))
 Mocap Settings
 """
 
-"""
-mocap_data_path = "E:/data/mocap/Diane/Solos/ZHdK_10.10.2025/fbx_50hz/"
-#mocap_data_files = ["trial-001.fbx"]
-#mocap_valid_ranges = [[466, 18947]]
+
+mocap_data_path = "E:/data/mocap/Diane/Solos/ZHdK_10.10.2025/fbx_60hz/"
 mocap_data_files = ["trial-002.fbx"]
-mocap_valid_ranges = [[257, 18951]]
-"""
+mocap_valid_ranges = [[364, 22739]]
 
-"""
-mocap_data_path = "E:/data/mocap/Motion2Audio/stocos/fbx_50hz/"
-mocap_data_files = ["Take_3_50fps_crop.fbx"]
-mocap_valid_ranges = [[0, 12350]]
-"""
-
-"""
-mocap_data_path = "E:/data/mocap/Eleni/fbx_50hz/"
-mocap_data_files = ["Eline_Session-001.fbx"]
-mocap_valid_ranges = [[483, 41635]]#
-"""
-
-"""
-mocap_data_path = "E:/Data/mocap/Diane/Solos/ZHdK_12.11.2025/fbx_50hz/RepeatedExcerpt/"
-mocap_data_files = ["Diane_Take1.fbx",
-                    "Diane_Take2.fbx",
-                    "Diane_Take3.fbx",
-                    "Diane_Take4.fbx"]
-mocap_valid_ranges = [[530, 3544],
-                      [346, 3366],
-                      [351, 3365],
-                      [244, 3258]]
-"""
-
-mocap_data_path = "E:/Data/mocap/Tim/Solos/ZHdK_17.12.2025/fbx_60hz/"
-mocap_data_files = ["Tim_Take1.fbx",
-                    "Tim_Take2.fbx",
-                    "Tim_Take3.fbx"]
-mocap_valid_ranges = [[338, 4838],
-                      [377, 4877],
-                      [340, 4840]]
 
 
 mocap_pos_scale = 0.1
@@ -104,32 +70,9 @@ mocap_std_file = "results/stat/mocap_std.pt"
 Audio Settings
 """
 
-"""
 audio_data_path = "E:/data/audio/Diane/48khz/"
 audio_data_files = ["4d69949b.wav"]
-#audio_valid_ranges = [[5.0, 374.46]]
-audio_valid_ranges = [[0.28, 374.23]]
-"""
-
-"""
-audio_data_path = "E:/data/audio/Motion2Audio/stocos/"
-audio_data_files = ["Take3_RO_37-4-1_HQ_audio_crop_48khz.wav"]
-audio_valid_ranges = [[-1.0, -1.0]]
-"""
-
-"""
-audio_data_path = "E:/data/audio/Eleni/"
-audio_data_files = ["4_5870821179501060412.wav"]
-audio_valid_ranges = [[2.71, 825.75]]
-"""
-
-audio_data_path = "E:/data/audio/Tim/48khz/"
-audio_data_files = ["Excerpt.wav",
-                    "Excerpt.wav",
-                    "Excerpt.wav"]
-audio_valid_ranges = [[0.0, 75.00],
-                      [0.0, 75.00],
-                      [0.0, 75.00]]
+audio_valid_ranges = [[5.0, 377.91]]
 
 audio_sample_rate = 48000
 audio_channels = 1
@@ -151,7 +94,7 @@ vocos_pretrained_config = "kittn/vocos-mel-48khz-alpha1"
 Vocos VAE Model Settings
 """
 
-latent_dim = 32
+latent_dim = 128
 audio_dim = latent_dim
 vae_conv_channel_counts = [ 16, 32, 64, 128 ]
 vae_conv_kernel_size = (5, 3)
@@ -159,23 +102,9 @@ vae_dense_layer_sizes = [ 512 ]
 audio_mel_count_vae = 8 
 audio_latents_input_sequence_length = None
 
-"""
-encoder_weights_file = "../../AudioTransform/vae_vocos_v2/results_audio_vae_vocos_cnn_DianeFather_v2/weights/encoder_weights_epoch_400"
-decoder_weights_file = "../../AudioTransform/vae_vocos_v2/results_audio_vae_vocos_cnn_DianeFather_v2/weights/decoder_weights_epoch_400"
-"""
 
-"""
-encoder_weights_file = "../../AudioTransform/vae_vocos_v2/results_audio_vae_vocos_cnn_Stocos_Take3_v2/weights/encoder_weights_epoch_400"
-decoder_weights_file = "../../AudioTransform/vae_vocos_v2/results_audio_vae_vocos_cnn_Stocos_Take3_v2/weights/decoder_weights_epoch_400"
-"""
-
-"""
-encoder_weights_file = "../../AudioTransform/vae_vocos_v2/results_audio_vae_vocos_cnn_Eleni/weights/encoder_weights_epoch_400"
-decoder_weights_file = "../../AudioTransform/vae_vocos_v2/results_audio_vae_vocos_cnn_Eleni/weights/decoder_weights_epoch_400"
-"""
-
-encoder_weights_file = "../../AudioTransform/vae_vocos_v2/results_audio_vae_vocos_cnn_Tim/weights/encoder_weights_epoch_400"
-decoder_weights_file = "../../AudioTransform/vae_vocos_v2/results_audio_vae_vocos_cnn_Tim/weights/decoder_weights_epoch_400"
+encoder_weights_file = "../../../VAE/Audio_VAE/Audio_VAE_Vocos/Training/results_audio_vae_vocos_cnn_Diane_kld1.0/weights/encoder_weights_epoch_400"
+decoder_weights_file = "../../../VAE/Audio_VAE/Audio_VAE_Vocos/Training/results_audio_vae_vocos_cnn_Diane_kld1.0/weights/decoder_weights_epoch_400"
 
 
 """
@@ -204,11 +133,10 @@ Training Settings
 learning_rate = 1e-4
 non_teacher_forcing_step_count = 10
 model_save_interval = 50
-load_weights = False
-save_weights = True
-transformer_load_weights_path = "results_Eleni_Take1_v4/weights/transformer_weights_epoch_200"
+load_weights = True
+save_weights = False
+transformer_load_weights_path = "results_Diane_Take2_kld1.0_60hz/weights/transformer_weights_epoch_200"
 epochs = 200
-
 
 """
 Mocap Visualisation Settings
@@ -1353,8 +1281,6 @@ torch.save(transformer.state_dict(), "results/weights/transformer_weights_epoch_
 
 # inference
 
-# TODO
-
 audio_window_length = audio_samples_per_mocap_frame * 4
 audio_window_env = torch.hann_window(audio_window_length)
 
@@ -1421,8 +1347,6 @@ def create_orig_audio(waveform_data, mocap_start_frame_index, mocap_frame_count,
     audio_waveform_excerpt = waveform_data[audio_waveform_excerpt_start_index:audio_waveform_excerpt_end_index]
     
     torchaudio.save(file_name, audio_waveform_excerpt.unsqueeze(0), audio_sample_rate)
-   
-create_orig_audio(audio_all_data[0][0], 60 * mocap_fps, 10 * mocap_fps, "ref_audio.wav")
 
 @torch.no_grad()
 def create_vocos_audio(waveform_data, mocap_start_frame_index, mocap_frame_count, file_name):
@@ -1465,8 +1389,6 @@ def create_vocos_audio(waveform_data, mocap_start_frame_index, mocap_frame_count
 
         torchaudio.save(file_name, gen_audio_waveform.unsqueeze(0), audio_sample_rate)
 
-create_vocos_audio(audio_all_data[0][0], 60 * mocap_fps, 10 * mocap_fps, "vocos_audio.wav")
-
 @torch.no_grad()
 def create_gen_audio(mocap_data, waveform_data, mocap_start_frame_index, mocap_frame_count, file_name):
     
@@ -1506,7 +1428,7 @@ def create_gen_audio(mocap_data, waveform_data, mocap_start_frame_index, mocap_f
     
     audio_encoder_out_mu, audio_encoder_out_std = encoder(audio_encoder_in)
     audio_encoder_out_std = torch.nn.functional.softplus(audio_encoder_out_std) + 1e-6
-    audio_latents_data = encoder.reparameterize(audio_encoder_out_mu, audio_encoder_out_std)
+    audio_latents = encoder.reparameterize(audio_encoder_out_mu, audio_encoder_out_std)
     
     #print("audio_latents_data s ", audio_latents_data.shape)
     
@@ -1614,6 +1536,7 @@ def create_gen_audio(mocap_data, waveform_data, mocap_start_frame_index, mocap_f
     
     transformer.train()
     
+    
 """
 generate audio with orig mocap data
 """
@@ -1625,7 +1548,7 @@ test_audio_data = audio_all_data[0][0]
 #print("test_mocap_data s ", test_mocap_data.shape)
 #print("test_audio_data s ", test_audio_data.shape)
 
-test_mocap_start_times = [10, 20, 30]
+test_mocap_start_times = [100, 200, 300]
 test_mocap_duration = 30
     
 for test_mocap_start_time in test_mocap_start_times:
@@ -1639,50 +1562,55 @@ for test_mocap_start_time in test_mocap_start_times:
 generate audio with alternative mocap data
 """
 
-"""
-test_mocap_data_file = "E:/data/mocap/Diane/Solos/ZHdK_10.10.2025/fbx_50hz/trial-003.fbx"
-test_mocap_valid_ranges = [0, 19000]
-"""
-
-"""
-test_mocap_data_file = "E:/data/mocap/Motion2Audio/stocos/fbx_50hz/Take_1_50fps_crop.fbx"
-test_mocap_valid_ranges = [[0, 16000]]
-"""
-
-"""
-test_mocap_data_file = "E:/data/mocap/Eleni/fbx_50hz/Eline_Session-002.fbx"
-test_mocap_valid_ranges = [644, 41796]
-"""
-
-test_mocap_data_file = "E:/data/mocap/Tim/Solos/ZHdK_17.12.2025/fbx_60hz/Tim_Take4.fbx"
-test_mocap_valid_ranges = [359, 4859]
-
-if test_mocap_data_file.endswith(".bvh") or test_mocap_data_file.endswith(".BVH"):
-    bvh_data = bvh_tools.load(test_mocap_data_file)
-    test_mocap_data = mocap_tools.bvh_to_mocap(bvh_data)
-elif test_mocap_data_file.endswith(".fbx") or test_mocap_data_file.endswith(".FBX"):
-    fbx_data = fbx_tools.load(test_mocap_data_file)
-    test_mocap_data = mocap_tools.fbx_to_mocap(fbx_data)[0] # first skeleton only  
-    
-test_mocap_data["skeleton"]["offsets"] *= mocap_pos_scale
-test_mocap_data["motion"]["pos_local"] *= mocap_pos_scale
-
-# set x and z offset of root joint to zero
-test_mocap_data["skeleton"]["offsets"][0, 0] = 0.0 
-test_mocap_data["skeleton"]["offsets"][0, 2] = 0.0 
-
-if test_mocap_data_file.endswith(".bvh") or test_mocap_data_file.endswith(".BVH"):
-    test_mocap_data["motion"]["rot_local"] = mocap_tools.euler_to_quat_bvh(test_mocap_data["motion"]["rot_local_euler"], test_mocap_data["rot_sequence"])
-elif test_mocap_data_file.endswith(".fbx") or test_mocap_data_file.endswith(".FBX"):
-    test_mocap_data["motion"]["rot_local"] = mocap_tools.euler_to_quat(test_mocap_data["motion"]["rot_local_euler"], test_mocap_data["rot_sequence"])
-
-test_mocap_data = torch.from_numpy(test_mocap_data["motion"]["rot_local"]).to(torch.float32)
-test_mocap_data = test_mocap_data.reshape(-1, pose_dim)
-
-test_mocap_start_times = [10, 20, 30]
+test_mocap_data_path = "E:/data/mocap/Diane/Solos/ZHdK_10.10.2025/fbx_60hz/"
+test_mocap_data_files = ["trial-002.fbx",
+                         "trial-003.fbx",
+                         "trial-004.fbx",
+                         "trial-005.fbx",
+                         "trial-006.fbx"]
+test_mocap_valid_ranges = [[364, 22739],
+                           [531, 22905],
+                           [549, 22924],
+                           [613, 22988],
+                           [1171, 23545]]
+test_mocap_start_times = [[0, 30],
+                          [0, 30],
+                          [0, 30]]
 test_mocap_duration = 30
-    
-for test_mocap_start_time in test_mocap_start_times:
-    create_mocap_anim(test_mocap_data, test_mocap_start_time * mocap_fps, test_mocap_duration * mocap_fps, "results/anims/test_mocap_{}-{}.gif".format(test_mocap_start_time, (test_mocap_start_time + test_mocap_duration)))
-    create_gen_audio(test_mocap_data, test_audio_data, test_mocap_start_time * mocap_fps, test_mocap_duration * mocap_fps, "results/audio/gen_audio_{}-{}_epoch_{}_test.wav".format(test_mocap_start_time, (test_mocap_start_time + test_mocap_duration), epochs))
+test_audio_data = audio_all_data[0][0]
 
+
+
+for fI in range(len(test_mocap_data_files)):
+    
+    test_mocap_data_file = test_mocap_data_files[fI]
+    test_mocap_valid_range = test_mocap_valid_ranges[fI]
+    test_mocap_start_times2 = test_mocap_start_times[fI]
+
+    if test_mocap_data_file.endswith(".bvh") or test_mocap_data_file.endswith(".BVH"):
+        bvh_data = bvh_tools.load(test_mocap_data_path + test_mocap_data_file)
+        test_mocap_data = mocap_tools.bvh_to_mocap(bvh_data)
+    elif test_mocap_data_file.endswith(".fbx") or test_mocap_data_file.endswith(".FBX"):
+        fbx_data = fbx_tools.load(test_mocap_data_path + test_mocap_data_file)
+        test_mocap_data = mocap_tools.fbx_to_mocap(fbx_data)[0] # first skeleton only  
+        
+    test_mocap_data["skeleton"]["offsets"] *= mocap_pos_scale
+    test_mocap_data["motion"]["pos_local"] *= mocap_pos_scale
+    
+    # set x and z offset of root joint to zero
+    test_mocap_data["skeleton"]["offsets"][0, 0] = 0.0 
+    test_mocap_data["skeleton"]["offsets"][0, 2] = 0.0 
+    
+    if test_mocap_data_file.endswith(".bvh") or test_mocap_data_file.endswith(".BVH"):
+        test_mocap_data["motion"]["rot_local"] = mocap_tools.euler_to_quat_bvh(test_mocap_data["motion"]["rot_local_euler"], test_mocap_data["rot_sequence"])
+    elif test_mocap_data_file.endswith(".fbx") or test_mocap_data_file.endswith(".FBX"):
+        test_mocap_data["motion"]["rot_local"] = mocap_tools.euler_to_quat(test_mocap_data["motion"]["rot_local_euler"], test_mocap_data["rot_sequence"])
+    
+    test_mocap_data = torch.from_numpy(test_mocap_data["motion"]["rot_local"]).to(torch.float32)
+    test_mocap_data = test_mocap_data.reshape(-1, pose_dim)
+    
+
+    for test_mocap_start_time in test_mocap_start_times2:
+        create_mocap_anim(test_mocap_data, test_mocap_start_time * mocap_fps, test_mocap_duration * mocap_fps, "results/anims/test_mocap_{}_{}-{}.gif".format(test_mocap_data_file, test_mocap_start_time, (test_mocap_start_time + test_mocap_duration)))
+        create_gen_audio(test_mocap_data, test_audio_data, test_mocap_start_time * mocap_fps, test_mocap_duration * mocap_fps, "results/audio/test_gen_audio_{}_{}-{}_epoch_{}.wav".format(test_mocap_data_file, test_mocap_start_time, (test_mocap_start_time + test_mocap_duration), epochs))
+    
