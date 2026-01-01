@@ -2,6 +2,10 @@
 
 Motion2Audio is a research project that aims to develop AI-based tools for translating dance movements into music. These tools are designed to allow dancers to freely improvise to existing music and then use recordings of these improvisations as the basis for interactively controlling the creation of music through their body movements.
 
+https://github.com/user-attachments/assets/904f2080-76e2-4f6d-9165-09b0d59ebc91
+
+figure 1: video and motion capture recording of dancer Diane improvising to the audio recording of her father's voice. 
+
 ### Artistic Principle
 
 At the core of this project lies the idea that performers in contemporary dance have developed highly refined techniques and strategies for using music as a creative resource in the generation of movement. Motion2Audio seeks to adopt these techniques as the foundation for developing digital musical instruments whose interaction and sound generation are guided solely by the dancers’ idiosyncratic decisions made while improvising to music.
@@ -34,10 +38,6 @@ Currently, the project runs as a collaboration between two researchers and three
 - Tim Winkler
 
 ### Example Media
-
-https://github.com/user-attachments/assets/904f2080-76e2-4f6d-9165-09b0d59ebc91
-
-figure 1: video and motion capture recording of dancer Diane improvising to the audio recording of her father's voice. 
 
 https://github.com/user-attachments/assets/905a1110-ab94-47bf-bc3a-5da762bc2398
 
