@@ -10,6 +10,30 @@ At the core of this project lies the idea that performers in contemporary dance 
 
 Motion2Audio develops machine learning models that analyze a dancer's movements and translate these movements into music through neural sound synthesis. These models are trained on recordings of dancers improvising to music. Through training, the models learn the correlations between movement and sound. Once trained, they can generate new music from movement alone.
 
+### Example Media
+
+
+
+https://github.com/user-attachments/assets/904f2080-76e2-4f6d-9165-09b0d59ebc91
+
+
+
+https://github.com/user-attachments/assets/905a1110-ab94-47bf-bc3a-5da762bc2398
+
+
+
+https://github.com/user-attachments/assets/a7d12dca-adda-4077-af25-12253777a45a
+
+
+
+https://github.com/user-attachments/assets/52d19655-44ef-481d-86ff-2b630300244d
+
+
+
+https://github.com/user-attachments/assets/96086b98-fb68-4c3d-8178-fa61263ca92c
+
+
+
 ### Repository
 
 This repository is divided into the following sections. 
