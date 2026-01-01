@@ -1,4 +1,4 @@
-## AI-Toolbox - Motion Utilities - XSens2Osc
+## Motion2Audio - MotionCapture - XSens2Osc
 
 ![XSens2Osc](data/media/XSens2Osc.JPG)
 

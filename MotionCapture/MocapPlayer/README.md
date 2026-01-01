@@ -1,4 +1,4 @@
-## AI-Toolbox - Motion Utilities - Mocap Player
+## Motion2Audio - MotionCapture - MocapPlayer
 
 ![MocapPlayer](./data/media/MocapPlayer.JPG)
 
@@ -11,8 +11,6 @@ The MocapPlayer is a simple Python-based software for playing motion capture dat
 ### Installation
 
 The software runs within the *premiere* anaconda environment. For this reason, this environment has to be setup beforehand.  Instructions how to setup the *premiere* environment are available as part of the [installation documentation ](https://github.com/bisnad/AIToolbox/tree/main/Installers) in the [AI Toolbox github repository](https://github.com/bisnad/AIToolbox). 
-
-The software can be downloaded by cloning the [MotionUtilities Github repository](https://github.com/bisnad/MotionUtilities). After cloning, the software is located in the MotionUtilities / MocapPlayer directory.
 
 ### Directory Structure
 

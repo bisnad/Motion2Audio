@@ -1,26 +1,26 @@
 # Motion2Audio
 
-Motion2Audio is a research project that aims to develop AI-based tools for translating dance movements into music. The tools are meant to allow dancers to freely improvise to existing music and then use recordings of these improvisations as basis for interactively controlling the creation of music by means of their body movements. 
+Motion2Audio is a research project that aims to develop AI-based tools for translating dance movements into music. These tools are designed to allow dancers to freely improvise to existing music and then use recordings of these improvisations as the basis for interactively controlling the creation of music through their body movements.
 
 ### Artistic Principle
 
-At the core of this project lies the idea that performers in contemporary dance have developed  idiosyncratic techniques and strategies to use music as a resource for ideating movement. Motion2Audio tries to adopt the dancer's improvisation techniques as basis to create digital musical instruments whose interaction and music generation principles are solely informed by creative decision as to how to relate his or her movement to music. 
+At the core of this project lies the idea that performers in contemporary dance have developed highly refined techniques and strategies for using music as a creative resource in the generation of movement. Motion2Audio seeks to adopt these techniques as the foundation for developing digital musical instruments whose interaction and sound generation are guided solely by the dancers’ idiosyncratic decisions made while improvising to music.
 
 ### Technical Principe
 
-Motion2Audio develops machine learning models that analyse a dancer's movements and translates these movements into music through neural sound synthesis. These models are trained on music and movement recordings of dancers who have been improvising to music. Through training, the models learn the correlations between movement and music. Once trained, the models employ these correlations to generate new music from movement alone. 
+Motion2Audio develops machine learning models that analyze a dancer's movements and translate these movements into music through neural sound synthesis. These models are trained on recordings of dancers improvising to music. Through training, the models learn the correlations between movement and sound. Once trained, they can generate new music from movement alone.
 
 ### Repository
 
 This repository is divided into the following sections. 
 
-- The [MotionCapture](https://github.com/bisnad/Motion2Audio/tree/main/MotionCapture) section contains tools for converting proprietary message protocols of motion capture systems to the OSC (open sound control) and for playing motion capture recordings.
-- The [Transformer](https://github.com/bisnad/Motion2Audio/tree/main/Transformer) section contains tools for training and using Transformer models that translate motion to audio.
--  The [VAE](https://github.com/bisnad/Motion2Audio/tree/main/VAE) section contains for training and using Variational Autoencoders for compressing and reconstructing audio.
+- The [MotionCapture](https://github.com/bisnad/Motion2Audio/tree/main/MotionCapture) section contains tools for converting proprietary motion capture message protocols to OSC (Open Sound Control) format and for playing back motion capture recordings.
+- The [Transformer](https://github.com/bisnad/Motion2Audio/tree/main/Transformer) section contains tools for training and using Transformer models that translate motion into audio.
+-  The [VAE](https://github.com/bisnad/Motion2Audio/tree/main/VAE) section contains tools for training and using Variational Autoencoders to compress and reconstruct audio.
 
 ### Partners
 
-Currently, the projects runs as a collaboration between two researchers and three professional dancers.
+Currently, the project runs as a collaboration between two researchers and three professional dancers.
 
 **Researchers**
 
