@@ -1563,6 +1563,7 @@ generate audio with alternative mocap data
 """
 
 test_mocap_data_path = "E:/data/mocap/Diane/Solos/ZHdK_10.10.2025/fbx_60hz/"
+
 test_mocap_data_files = ["trial-002.fbx",
                          "trial-003.fbx",
                          "trial-004.fbx",
@@ -1573,9 +1574,11 @@ test_mocap_valid_ranges = [[364, 22739],
                            [549, 22924],
                            [613, 22988],
                            [1171, 23545]]
-test_mocap_start_times = [[0, 30],
-                          [0, 30],
-                          [0, 30]]
+test_mocap_start_times = [[100, 200, 300],
+                          [100, 200, 300],
+                          [100, 200, 300],
+                          [100, 200, 300],
+                          [100, 200, 300]]
 test_mocap_duration = 30
 test_audio_data = audio_all_data[0][0]
 
