@@ -10,7 +10,7 @@ figure 1: video and motion capture recording of dancer Diane improvising to the 
 
 At the core of this project lies the idea that performers in contemporary dance have developed highly refined techniques and strategies for using music as a creative resource in the generation of movement. Motion2Audio seeks to adopt these techniques as the foundation for developing digital musical instruments whose interaction and sound generation are guided solely by the dancers’ idiosyncratic decisions made while improvising to music.
 
-### Technical Principe
+### Technical Principle
 
 Motion2Audio develops machine learning models that analyze a dancer's movements and translate these movements into music through neural sound synthesis. These models are trained on recordings of dancers improvising to music. Through training, the models learn the correlations between movement and sound. Once trained, they can generate new music from movement alone.
 

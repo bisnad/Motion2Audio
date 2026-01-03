@@ -50,83 +50,113 @@ print('Using {} device'.format(device))
 Mocap Settings
 """
 
-
 mocap_data_path = "E:/Data/mocap/Eleni/Solos/ZHdK_04.12.2025/fbx_60hz"
 mocap_data_files = ["Eline_Session-002.fbx"]
 mocap_valid_ranges = [[780, 50163]]
 
-
 mocap_pos_scale = 1.0
 mocap_fps = 60
-mocap_offset = 2
 
-mocap_dim = -1 # automatically calculated
-mocap_input_seq_length = 56 
-mocap_output_seq_length = 80 # for non teacher forcing
-mocap_input_output_seq_length = mocap_input_seq_length + mocap_output_seq_length
-load_mocap_stat = False
-mocap_mean_file = "results/stat/mocap_mean.pt"
-mocap_std_file = "results/stat/mocap_std.pt"
+load_mocap_stats = False
+mocap_mean_file = "results/stats/mocap_mean.pt"
+mocap_std_file = "results/stats/mocap_std.pt"
 
 """
 Audio Settings
 """
 
-audio_data_path = "E:/data/audio/Diane/48khz/"
-audio_data_files = ["4d69949b.wav"]
-audio_valid_ranges = [[5.0, 377.91]]
+audio_data_path = "E:/data/audio/Eleni/"
+audio_data_files = ["4_5870821179501060412.wav"]
+audio_valid_ranges = [[2.71, 825.75]]
 
 audio_sample_rate = 48000
 audio_channels = 1
-audio_dim = -1 # automatically calculated
-audio_waveform_input_seq_length = int(audio_sample_rate / mocap_fps * mocap_input_seq_length)
-audio_samples_per_mocap_frame = audio_sample_rate // mocap_fps
+audio_waveform_length_per_mocap_frame = int(1.0 / mocap_fps * audio_sample_rate)
 
-load_audio_latents_stat = False
-audio_latents_mean_file = "results/stat/latents_mean.pt"
-audio_latents_std_file = "results/stat/latents_std.pt"
+load_audio_stats = False
+audio_mean_file = "results/stats/audio_mean.pt"
+audio_std_file = "results/stats/audio_std.pt"
 
 """
 Vocos Settings
 """
 
 vocos_pretrained_config = "kittn/vocos-mel-48khz-alpha1"
+audio_vocos_waveform_length = 44800
 
 """
-Vocos VAE Model Settings
+Motion VAE Model Settings
 """
 
-latent_dim = 128
-audio_dim = latent_dim
-vae_conv_channel_counts = [ 16, 32, 64, 128 ]
-vae_conv_kernel_size = (5, 3)
-vae_dense_layer_sizes = [ 512 ]
-audio_mel_count_vae = 8 
-audio_latents_input_sequence_length = None
+motion_vae_mocap_length = 8
 
+motion_vae_latent_dim = 128
+motion_vae_sequence_length = 24
+motion_vae_rnn_layer_count = 2
+motion_vae_rnn_layer_size = 512
+motion_vae_dense_layer_sizes = [ 512 ]
 
-encoder_weights_file = "../../../VAE/Audio_VAE/Audio_VAE_Vocos/Training/results_audio_vae_vocos_cnn_Diane_kld1.0/weights/encoder_weights_epoch_400"
-decoder_weights_file = "../../../VAE/Audio_VAE/Audio_VAE_Vocos/Training/results_audio_vae_vocos_cnn_Diane_kld1.0/weights/decoder_weights_epoch_400"
+motion_vae_encoder_weights_file = "../../../VAE/Multimodal_VAE/Multimodal_VAE_Vocos_CL/Training/results_Eleni_Take2_mocap8_kld1.0_cl1.0/weights/motion_encoder_weights_epoch_400"
+motion_vae_decoder_weights_file = "../../../VAE/Multimodal_VAE/Multimodal_VAE_Vocos_CL/Training/results_Eleni_Take2_mocap8_kld1.0_cl1.0/weights/motion_decoder_weights_epoch_400"
+
+load_motion_latents_stats = False
+motion_latents_mean_file = "results/stats/motion_latents_mean.pt"
+motion_latents_std_file = "results/stats/motion_latents_std.pt"
 
 
 """
-Dataset Settings
+Audio VAE Model Settings
 """
 
-mocap_frame_incr = 1
-batch_size = 32 # 128
-test_percentage = 0.1
+audio_vae_waveform_length = int(motion_vae_mocap_length / mocap_fps * audio_sample_rate)
+audio_vae_mel_count = None # automatically calculated
+audio_waveform_start_offset = audio_vocos_waveform_length - audio_vae_waveform_length
+mocap_frame_start_offset = int(audio_waveform_start_offset / audio_sample_rate * mocap_fps)
+
+audio_vae_latent_dim = 128
+audio_vae_conv_channel_counts = [ 16, 32, 64, 128 ]
+audio_vae_conv_kernel_size = (5, 3)
+audio_vae_dense_layer_sizes = [ 512 ]
+
+audio_vae_encoder_weights_file = "../../../VAE/Multimodal_VAE/Multimodal_VAE_Vocos_CL/Training/results_Eleni_Take2_mocap8_kld1.0_cl1.0/weights/audio_encoder_weights_epoch_400"
+audio_vae_decoder_weights_file = "../../../VAE/Multimodal_VAE/Multimodal_VAE_Vocos_CL/Training/results_Eleni_Take2_mocap8_kld1.0_cl1.0/weights/audio_decoder_weights_epoch_400"
+
+load_audio_latents_stats = False
+audio_latents_mean_file = "results/stats/audio_latents_mean.pt"
+audio_latents_std_file = "results/stats/audio_latents_std.pt"
 
 """
-Model Settings
+Transformer Model Settings
 """
 
 transformer_layer_count = 6
 transformer_head_count = 8
 transformer_embed_dim = 256
 transformer_dropout = 0.1   
-#pos_encoding_max_length = max(mocap_input_seq_length, audio_latents_input_seq_length)
-pos_encoding_max_length = mocap_input_seq_length # in this implementation, the mocap_input_seq_length is always longer than the audio_latents_input_seq_length
+
+transformer_mocap_input_length = 56
+transformer_mocap_output_length = 10 
+transformer_mocap_output_length_2 = transformer_mocap_output_length + motion_vae_mocap_length - 1
+
+transformer_audio_waveform_input_length = int(transformer_mocap_input_length / mocap_fps * audio_sample_rate)
+transformer_audio_waveform_output_length = int(transformer_mocap_output_length / mocap_fps * audio_sample_rate)
+transformer_audio_waveform_output_length_2 = int(transformer_mocap_output_length_2 / mocap_fps * audio_sample_rate)
+
+transformer_audio_waveform_input_length
+transformer_audio_waveform_output_length
+
+# the input length for the transformer is the same for mocap and audio
+# since the transformer_mocap_input_length equals the number of latents for both modalities
+pos_encoding_max_length = transformer_mocap_input_length
+
+
+"""
+Dataset Settings
+"""
+
+mocap_offset = 4
+batch_size = 32 # 128
+test_percentage = 0.1
 
 """
 Training Settings
@@ -135,8 +165,8 @@ Training Settings
 learning_rate = 1e-4
 non_teacher_forcing_step_count = 10
 model_save_interval = 50
-load_weights = True
-save_weights = False
+load_weights = False
+save_weights = True
 transformer_load_weights_path = "results_Diane_Take2_kld1.0_60hz/weights/transformer_weights_epoch_200"
 epochs = 200
 
@@ -203,10 +233,9 @@ children = mocap_skeleton["children"]
 
 mocap_motion = mocap_all_data[0]["motion"]["rot_local"]
 
-joint_count = mocap_motion.shape[1]
-joint_dim = mocap_motion.shape[2]
-pose_dim = joint_count * joint_dim
-mocap_dim = pose_dim
+mocap_joint_count = mocap_motion.shape[1]
+mocap_joint_dim = mocap_motion.shape[2]
+mocap_pose_dim = mocap_joint_count * mocap_joint_dim
 
 # create edge list
 def get_edge_list(children):
@@ -221,15 +250,17 @@ def get_edge_list(children):
 edge_list = get_edge_list(children)
 
 poseRenderer = PoseRenderer(edge_list)
-    
-# calc mean and std on all mocap data
 
-if load_mocap_stat == True:
+"""
+Calculate Mocap Stats
+"""
+
+if load_mocap_stats == True:
     mocap_mean = torch.load(mocap_mean_file)
     mocap_std = torch.load(mocap_std_file)
     
-    mocap_mean.to(device)
-    mocap_std.to(device)
+    mocap_mean = mocap_mean.to(device)
+    mocap_std = mocap_std.to(device)
 else:
 
     mocap_sequences_concat = [ mocap_data["motion"]["rot_local"] for mocap_data in mocap_all_data ]
@@ -280,7 +311,7 @@ for audio_data_file, audio_valid_range in zip(audio_data_files, audio_valid_rang
     print("audio_data 2 s ", audio_data.shape)
     
     audio_all_data.append(audio_data)
-
+    
 """
 Load Vocos Model
 """
@@ -288,23 +319,56 @@ Load Vocos Model
 vocos = Vocos.from_pretrained("kittn/vocos-mel-48khz-alpha1").to(device)
 vocos.eval()
 
-audio_mels_input_sequence = vocos.feature_extractor(torch.rand(size=(1, audio_waveform_input_seq_length), dtype=torch.float32).to(device))
-tmp = vocos.decode(audio_mels_input_sequence)
+audio_vae_waveform = torch.zeros((1, audio_vae_waveform_length), dtype=torch.float32).to(device)
+audio_vae_mels = vocos.feature_extractor(audio_vae_waveform)
+audio_vae_waveform_rec = vocos.decode(audio_vae_mels)
 
-if audio_waveform_input_seq_length != tmp.shape[-1]:
-    print("Warning: reconstructing audio waveform from mels does not produce same number as audio samples as in original audio waveform")
-    print("orig waveform sample count ", audio_waveform_input_seq_length)
-    print("reconsrtucted waveform sample count ", tmp.shape[-1])
+print("audio_vae_waveform s ", audio_vae_waveform.shape)
+print("audio_vae_mels s ", audio_vae_mels.shape)
+print("audio_vae_waveform_rec s ", audio_vae_waveform_rec.shape)
 
-audio_mel_input_seq_length = audio_mels_input_sequence.shape[-1]
-audio_latents_input_seq_length = audio_mel_input_seq_length // audio_mel_count_vae
-audio_mel_filter_count = audio_mels_input_sequence.shape[1]
+audio_mel_filter_count = audio_vae_mels.shape[1]
+audio_vae_mel_count = audio_vae_mels.shape[-1]
 
-print("audio_mel_input_seq_length ", audio_mel_input_seq_length)
-print("audio_latents_input_seq_length ", audio_latents_input_seq_length)
 print("audio_mel_filter_count ", audio_mel_filter_count)
+print("audio_vae_mel_count ", audio_vae_mel_count)
 
-pos_encoding_max_length = max(mocap_input_seq_length, audio_latents_input_seq_length)
+"""
+Calculate Audio Stats
+"""
+
+if load_audio_stats == True:
+    audio_mean = torch.load(audio_mean_file)
+    audio_std = torch.load(audio_std_file)
+    
+    audio_mean = audio_mean.to(device)
+    audio_std = audio_std.to(device)
+else:
+    
+    audio_all_mels = []
+    
+    for audio_waveform in audio_all_data:
+        
+        #print("audio_waveform s ", audio_waveform.shape)
+        
+        audio_mels = vocos.feature_extractor(audio_waveform.to(device))
+        
+        #print("audio_mels s ", audio_mels.shape)
+        
+        audio_all_mels.append(audio_mels)
+        
+    audio_all_mels = torch.cat(audio_all_mels, axis=2)
+    
+    #print("audio_mels s ", audio_mels.shape)
+    
+    audio_mean = torch.mean(audio_all_mels, dim=2, keepdim=True)
+    audio_std = torch.std(audio_all_mels, dim=2, keepdim=True)
+    
+    print("audio_mean s ", audio_mean.shape)
+    print("audio_std s ", audio_std.shape)
+    
+    torch.save(audio_mean.detach().cpu(), audio_mean_file)
+    torch.save(audio_std.detach().cpu(), audio_std_file)
 
 """
 for pose_count in range(8, 256):
@@ -321,10 +385,185 @@ for pose_count in range(8, 256):
 """
 
 """
+Load Motion Autoencoder
+"""
+
+"""
+Load Motion Autoencoder - Encoder
+"""
+
+class MotionEncoder(nn.Module):
+    def __init__(self, sequence_length, pose_dim, latent_dim, rnn_layer_count, rnn_layer_size, dense_layer_sizes):
+        super(MotionEncoder, self).__init__()
+        
+        self.sequence_length = sequence_length
+        self.pose_dim = pose_dim
+        self.latent_dim = latent_dim
+        self.rnn_layer_count = rnn_layer_count
+        self.rnn_layer_size = rnn_layer_size 
+        self.dense_layer_sizes = dense_layer_sizes
+    
+        # create recurrent layers
+        rnn_layers = []
+        rnn_layers.append(("encoder_rnn_0", nn.LSTM(self.pose_dim, self.rnn_layer_size, self.rnn_layer_count, batch_first=True)))
+        
+        self.rnn_layers = nn.Sequential(OrderedDict(rnn_layers))
+        
+        # create dense layers
+        
+        dense_layers = []
+        
+        dense_layers.append(("encoder_dense_0", nn.Linear(self.rnn_layer_size, self.dense_layer_sizes[0])))
+        dense_layers.append(("encoder_dense_relu_0", nn.ReLU()))
+        
+        dense_layer_count = len(self.dense_layer_sizes)
+        for layer_index in range(1, dense_layer_count):
+            dense_layers.append(("encoder_dense_{}".format(layer_index), nn.Linear(self.dense_layer_sizes[layer_index-1], self.dense_layer_sizes[layer_index])))
+            dense_layers.append(("encoder_dense_relu_{}".format(layer_index), nn.ReLU()))
+            
+        self.dense_layers = nn.Sequential(OrderedDict(dense_layers))
+        
+        # create final dense layers
+            
+        self.fc_mu = nn.Linear(self.dense_layer_sizes[-1], self.latent_dim)
+        self.fc_std = nn.Linear(self.dense_layer_sizes[-1], self.latent_dim)
+        
+    def forward(self, x):
+        
+        #print("x 1 ", x.shape)
+        
+        x, (_, _) = self.rnn_layers(x)
+        
+        #print("x 2 ", x.shape)
+        
+        x = x[:, -1, :] # only last time step 
+        
+        #print("x 3 ", x.shape)
+        
+        x = self.dense_layers(x)
+        
+        #print("x 3 ", x.shape)
+        
+        mu = self.fc_mu(x)
+        std = self.fc_std(x)
+        
+        #print("mu s ", mu.shape, " lvar s ", log_var.shape)
+    
+        return mu, std
+    
+    def reparameterize(self, mu, std):
+            z = mu + std*torch.randn_like(std)
+            return z
+        
+motion_encoder = MotionEncoder(motion_vae_mocap_length, mocap_pose_dim, motion_vae_latent_dim, motion_vae_rnn_layer_count, motion_vae_rnn_layer_size, motion_vae_dense_layer_sizes).to(device)
+motion_encoder.eval()
+
+motion_encoder.load_state_dict(torch.load(motion_vae_encoder_weights_file, map_location=device))
+
+# test motion encoder
+
+motion_encoder_input = torch.zeros((batch_size, motion_vae_mocap_length, mocap_pose_dim), dtype=torch.float32).to(device)
+motion_encoder_output_mu, motion_encoder_output_std = motion_encoder(motion_encoder_input)
+motion_encoder_output = motion_encoder.reparameterize(motion_encoder_output_mu, torch.nn.functional.softplus(motion_encoder_output_std) + 1e-8)
+
+print("motion_encoder_input s ", motion_encoder_input.shape)
+print("motion_encoder_output s ", motion_encoder_output.shape)
+
+"""
+Load Motion Autoencoder - Decoder
+"""
+
+class MotionDecoder(nn.Module):
+    def __init__(self, sequence_length, pose_dim, latent_dim, rnn_layer_count, rnn_layer_size, dense_layer_sizes):
+        super(MotionDecoder, self).__init__()
+        
+        self.sequence_length = sequence_length
+        self.pose_dim = pose_dim
+        self.latent_dim = latent_dim
+        self.rnn_layer_size = rnn_layer_size
+        self.rnn_layer_count = rnn_layer_count
+        self.dense_layer_sizes = dense_layer_sizes
+
+        # create dense layers
+        dense_layers = []
+        
+        dense_layers.append(("decoder_dense_0", nn.Linear(latent_dim, self.dense_layer_sizes[0])))
+        dense_layers.append(("decoder_relu_0", nn.ReLU()))
+
+        dense_layer_count = len(self.dense_layer_sizes)
+        for layer_index in range(1, dense_layer_count):
+            dense_layers.append(("decoder_dense_{}".format(layer_index), nn.Linear(self.dense_layer_sizes[layer_index-1], self.dense_layer_sizes[layer_index])))
+            dense_layers.append(("decoder_dense_relu_{}".format(layer_index), nn.ReLU()))
+ 
+        self.dense_layers = nn.Sequential(OrderedDict(dense_layers))
+        
+        # create rnn layers
+        rnn_layers = []
+
+        rnn_layers.append(("decoder_rnn_0", nn.LSTM(self.dense_layer_sizes[-1], self.rnn_layer_size, self.rnn_layer_count, batch_first=True)))
+        
+        self.rnn_layers = nn.Sequential(OrderedDict(rnn_layers))
+        
+        # final output dense layer
+        final_layers = []
+        
+        final_layers.append(("decoder_dense_{}".format(dense_layer_count), nn.Linear(self.rnn_layer_size, self.pose_dim)))
+        
+        self.final_layers = nn.Sequential(OrderedDict(final_layers))
+        
+    def forward(self, x):
+        #print("x 1 ", x.size())
+        
+        # dense layers
+        x = self.dense_layers(x)
+        #print("x 2 ", x.size())
+        
+        # repeat vector
+        x = torch.unsqueeze(x, dim=1)
+        x = x.repeat(1, self.sequence_length, 1)
+        #print("x 3 ", x.size())
+        
+        # rnn layers
+        x, (_, _) = self.rnn_layers(x)
+        #print("x 4 ", x.size())
+        
+        # final time distributed dense layer
+        x_reshaped = x.contiguous().view(-1, self.rnn_layer_size)  # (batch_size * sequence, input_size)
+        #print("x 5 ", x_reshaped.size())
+        
+        yhat = self.final_layers(x_reshaped)
+        #print("yhat 1 ", yhat.size())
+        
+        yhat = yhat.contiguous().view(-1, self.sequence_length, self.pose_dim)
+        #print("yhat 2 ", yhat.size())
+
+        return yhat
+
+motion_vae_dense_layer_sizes_reversed = motion_vae_dense_layer_sizes.copy()
+motion_vae_dense_layer_sizes_reversed.reverse()
+
+motion_decoder = MotionDecoder(motion_vae_mocap_length, mocap_pose_dim, motion_vae_latent_dim, motion_vae_rnn_layer_count, motion_vae_rnn_layer_size, motion_vae_dense_layer_sizes_reversed).to(device)
+motion_decoder.eval()
+
+motion_decoder.load_state_dict(torch.load(motion_vae_decoder_weights_file, map_location=device))
+
+# test motion decoder
+
+motion_decoder_input = motion_encoder_output
+motion_decoder_output = motion_decoder(motion_decoder_input)
+
+print("motion_decoder_input s ", motion_decoder_input.shape)
+print("motion_decoder_output s ", motion_decoder_output.shape)
+
+"""
 Load Audio Autoencoder
 """
 
-class Encoder(nn.Module):
+"""
+Load Audio Autoencoder - Encoder
+"""
+
+class AudioEncoder(nn.Module):
     
     def __init__(self, latent_dim, mel_count, mel_filter_count, conv_channel_counts, conv_kernel_size, dense_layer_sizes):
         super().__init__()
@@ -428,16 +667,29 @@ class Encoder(nn.Module):
         z = mu + std*torch.randn_like(std)
         return z
 
-encoder = Encoder(latent_dim, audio_mel_count_vae, audio_mel_filter_count, vae_conv_channel_counts, vae_conv_kernel_size, vae_dense_layer_sizes).to(device)
+audio_encoder = AudioEncoder(audio_vae_latent_dim, audio_vae_mel_count, audio_mel_filter_count, audio_vae_conv_channel_counts, audio_vae_conv_kernel_size, audio_vae_dense_layer_sizes).to(device)
+audio_encoder.eval()
 
-print(encoder)
+audio_encoder.load_state_dict(torch.load(audio_vae_encoder_weights_file, map_location=device))
 
-encoder.load_state_dict(torch.load(encoder_weights_file, map_location=device))
+# test audio encoder
 
-encoder.eval()
-    
-# Decoder 
-class Decoder(nn.Module):
+test_audio_waveform = torch.zeros((batch_size, audio_vocos_waveform_length)).to(device)
+test_audio_mels = vocos.feature_extractor(test_audio_waveform)
+audio_encoder_input = test_audio_mels.unsqueeze(1)
+audio_encoder_input = audio_encoder_input[:, :, :, -audio_vae_mel_count:]
+
+audio_encoder_output_mu, audio_encoder_output_std = audio_encoder(audio_encoder_input)
+audio_encoder_output = audio_encoder.reparameterize(audio_encoder_output_mu, torch.nn.functional.softplus(audio_encoder_output_std) + 1e-8)
+
+print("audio_encoder_input s ", audio_encoder_input.shape)
+print("audio_encoder_output s ", audio_encoder_output.shape)
+
+"""
+Load Audio VAE Decoder - Decoder
+"""
+
+class AudioDecoder(nn.Module):
     
     def __init__(self, latent_dim, mel_count, mel_filter_count, conv_channel_counts, conv_kernel_size, dense_layer_sizes):
         super().__init__()
@@ -454,7 +706,7 @@ class Decoder(nn.Module):
         
         stride = ((self.conv_kernel_size[0] - 1) // 2, (self.conv_kernel_size[1] - 1) // 2)
         
-        print("stride ", stride)
+        #print("stride ", stride)
                 
         self.dense_layers.append(nn.Linear(latent_dim, self.dense_layer_sizes[0]))
         self.dense_layers.append(nn.ReLU())
@@ -528,25 +780,101 @@ class Decoder(nn.Module):
 
         return x
     
-vae_conv_channel_counts_reversed = vae_conv_channel_counts.copy()
-vae_conv_channel_counts_reversed.reverse()
+audio_vae_conv_channel_counts_reversed = audio_vae_conv_channel_counts.copy()
+audio_vae_conv_channel_counts_reversed.reverse()
     
-vae_dense_layer_sizes_reversed = vae_dense_layer_sizes.copy()
-vae_dense_layer_sizes_reversed.reverse()
+audio_vae_dense_layer_sizes_reversed = audio_vae_dense_layer_sizes.copy()
+audio_vae_dense_layer_sizes_reversed.reverse()
 
-vae_conv_channel_counts_reversed
+audio_decoder = AudioDecoder(audio_vae_latent_dim, audio_vae_mel_count, audio_mel_filter_count, audio_vae_conv_channel_counts_reversed, audio_vae_conv_kernel_size, audio_vae_dense_layer_sizes_reversed).to(device)
+audio_decoder.eval()
 
-decoder = Decoder(latent_dim, audio_mel_count_vae, audio_mel_filter_count, vae_conv_channel_counts_reversed, vae_conv_kernel_size, vae_dense_layer_sizes_reversed).to(device)
+audio_decoder.load_state_dict(torch.load(audio_vae_decoder_weights_file, map_location=device))
 
-print(decoder)
+# test audio decoder
+audio_decoder_input = audio_encoder_output
+audio_decoder_output = audio_decoder(audio_decoder_input)
 
-decoder.load_state_dict(torch.load(decoder_weights_file, map_location=device))
+print("audio_decoder_input s ", audio_decoder_input.shape)
+print("audio_decoder_output s ", audio_decoder_output.shape)
+    
+"""
+Compute Motion Latents Statistics
+"""
 
-decoder.eval()
+if load_motion_latents_stats == True:
+    
+    motion_latents_mean = torch.load(motion_latents_mean_file)
+    motion_latents_std = torch.load(motion_latents_std_file)
+    
+    motion_latents_mean = motion_latents_mean.to(device)
+    motion_latents_std = motion_latents_std.to(device)
 
-# compute and normalise audio latents
+else:
+    with torch.no_grad():
+        
+        motion_latents_all = []
+        
+        for mocap_data in mocap_all_data:
+            
+            mocap_motion = mocap_data["motion"]["rot_local"]
+            mocap_motion = torch.from_numpy(mocap_motion).to(torch.float32)
+            mocap_motion = mocap_motion.reshape((-1, mocap_pose_dim))
+            
+            mocap_frame_count = mocap_motion.shape[0]
 
-if load_audio_latents_stat == True:
+            for mfI in range(mocap_frame_start_offset, mocap_frame_count - motion_vae_mocap_length * batch_size, batch_size):
+               
+                #print("mfI ", mfI, " out of ", (mocap_frame_count - motion_vae_mocap_length)) 
+               
+                # get mocap sequence
+                mocap_excerpt_start = mfI
+                mocap_excerpt_end = mfI + motion_vae_mocap_length * batch_size
+                mocap_excerpt = mocap_motion[mocap_excerpt_start:mocap_excerpt_end, :].to(device)
+                
+                #print("mocap_excerpt s ", mocap_excerpt.shape)
+                
+                # normalise mocap excerpt
+                mocap_excerpt_norm = (mocap_excerpt - mocap_mean) / (mocap_std + 1e-8) 
+                
+                #print("mocap_excerpt_norm s ", mocap_excerpt_norm.shape)
+                
+                mocap_excerpt_norm = mocap_excerpt_norm.reshape((batch_size, motion_vae_mocap_length, mocap_pose_dim))
+                
+                #print("mocap_excerpt_norm 2 s ", mocap_excerpt_norm.shape)
+                
+                motion_encoder_output_mu, motion_encoder_output_std = motion_encoder(mocap_excerpt_norm)
+                motion_latent = motion_encoder.reparameterize(motion_encoder_output_mu, torch.nn.functional.softplus(motion_encoder_output_std) + 1e-8)
+
+                #print("motion_latent s ", motion_latent.shape)
+
+                motion_latent = motion_latent.detach().cpu()
+                motion_latents_all.append(motion_latent)
+                
+        motion_latents_all = torch.cat(motion_latents_all, dim=0)
+        
+        #print("motion_latents_all s ", motion_latents_all.shape)
+        
+        motion_latents_mean = torch.mean(motion_latents_all, dim=0, keepdim=True)
+        motion_latents_std = torch.std(motion_latents_all, dim=0, keepdim=True)
+        
+        #print("motion_latents_mean s ", motion_latents_mean.shape)
+        #print("motion_latents_std s ", motion_latents_std.shape)
+        
+        torch.save(motion_latents_mean.detach(), motion_latents_mean_file)
+        torch.save(motion_latents_std.detach(), motion_latents_std_file)
+        
+        motion_latents_mean = motion_latents_mean.to(device)
+        motion_latents_std = motion_latents_std.to(device)
+
+print("motion_latents_mean s ", motion_latents_mean.shape)
+print("motion_latents_std s ", motion_latents_std.shape)
+
+"""
+Compute Audio Latents Statistics
+"""
+
+if load_audio_latents_stats == True:
     audio_latents_mean = torch.load(audio_latents_mean_file)
     audio_latents_std = torch.load(audio_latents_std_file)
     
@@ -566,13 +894,13 @@ else:
             
             audio_mel_count = audio_mels.shape[-1]
             
-            for amI in range(0, audio_mel_count - audio_mel_count_vae * batch_size, batch_size):
+            for amI in range(0, audio_mel_count - audio_vae_mel_count * batch_size, batch_size):
                 
-                audio_mels_excerpt = audio_mels[:, :, amI:amI + audio_mel_count_vae * batch_size]
+                audio_mels_excerpt = audio_mels[:, :, amI:amI + audio_vae_mel_count * batch_size]
                 
                 #print("amI ", amI, " audio_mels_excerpt s ", audio_mels_excerpt.shape)
                 
-                audio_encoder_in = audio_mels_excerpt.reshape((1, audio_mel_filter_count, batch_size, audio_mel_count_vae))
+                audio_encoder_in = audio_mels_excerpt.reshape((1, audio_mel_filter_count, batch_size, audio_vae_mel_count))
             
                 #print("amI ", amI, " audio_encoder_in s ", audio_encoder_in.shape)
                 
@@ -580,9 +908,9 @@ else:
                 
                 #print("amI ", amI, " audio_encoder_in 2 s ", audio_encoder_in.shape)
                 
-                audio_encoder_out_mu, audio_encoder_out_std = encoder(audio_encoder_in)
+                audio_encoder_out_mu, audio_encoder_out_std = audio_encoder(audio_encoder_in)
                 audio_encoder_out_std = torch.nn.functional.softplus(audio_encoder_out_std) + 1e-6
-                audio_encoder_out = encoder.reparameterize(audio_encoder_out_mu, audio_encoder_out_std)
+                audio_encoder_out = audio_encoder.reparameterize(audio_encoder_out_mu, audio_encoder_out_std)
             
                 #print("amI ", amI, " audio_encoder_out s ", audio_encoder_out.shape)
                 
@@ -604,173 +932,79 @@ else:
         audio_latents_mean = audio_latents_mean.to(device)
         audio_latents_std = audio_latents_std.to(device)
 
+print("audio_latents_mean s ", audio_latents_mean.shape)
+print("audio_latents_std s ", audio_latents_std.shape)
 
 """
 Create Dataset
 """
 
-X_mocap = []
-X_audio = []
-Y_audio = []
+motion_mocap_dataset = []
+audio_waveform_dataset = []
 
-mocap_input_output_seq_length
-mocap_frame_incr
+transformer_motion_mocap_full_seq_length = transformer_mocap_input_length + transformer_mocap_output_length_2
+transformer_audio_waveform_full_seq_length = transformer_motion_mocap_full_seq_length  * audio_waveform_length_per_mocap_frame + audio_waveform_start_offset
 
 for sI in range(len(mocap_all_data)):
     
     with torch.no_grad():
         
-        mocap_data = mocap_all_data[sI]["motion"]["rot_local"].reshape(-1, pose_dim)
-        audio_data = audio_all_data[sI][0]
+        motion_mocap = mocap_all_data[sI]["motion"]["rot_local"].reshape(-1, mocap_pose_dim)
+        audio_waveform = audio_all_data[sI][0].reshape(1, -1)
     
         #print(sI)
-        #print("mocap_data s ", mocap_data.shape)
-        #print("audio_data s ", audio_data.shape)
+        #print("motion_mocap s ", motion_mocap.shape)
+        #print("audio_waveform s ", audio_waveform.shape)
         
-        mocap_frame_count = mocap_data.shape[0]
+        mocap_frame_count = motion_mocap.shape[0]
         
-        # the range begin of 3 enshures no negative audio_waveform_start index and the -10 for the range end ensures that the audio_waveform_end doesn't exceed the audio waveform length
-        for mfI in range(3, mocap_frame_count - mocap_input_output_seq_length - 10, mocap_frame_incr):
+        for mfI in range(mocap_frame_start_offset, mocap_frame_count - transformer_motion_mocap_full_seq_length, mocap_offset):
             
-            print("mfI ", mfI, " out of ", (mocap_frame_count - mocap_input_output_seq_length - 10))
+            #print("mfI ", mfI, " out of ", (mocap_frame_count - transformer_motion_mocap_full_seq_length))
             
-            # mocap sequence part
-            
-            # get mocap sequence
+            # get motion mocap excerpt
             mocap_excerpt_start = mfI
-            mocap_excerpt_end = mfI + mocap_input_output_seq_length
+            mocap_excerpt_end = mfI + transformer_motion_mocap_full_seq_length
+            motion_mocap_excerpt = motion_mocap[mocap_excerpt_start:mocap_excerpt_end, ...]
+            motion_mocap_excerpt = torch.from_numpy(motion_mocap_excerpt).to(torch.float32)
             
-            #print("mocap_excerpt_start ", mocap_excerpt_start)
-            #print("mocap_excerpt_end ", mocap_excerpt_end)
+            #print("motion_mocap_excerpt s ", motion_mocap_excerpt.shape)
             
-            mocap_excerpt = mocap_data[mocap_excerpt_start:mocap_excerpt_end, :]
-            mocap_excerpt = torch.from_numpy(mocap_excerpt).unsqueeze(0).to(torch.float32).to(device)
-            
-            #print("mfI ", mfI, " me s ", mocap_excerpt.shape)
-            
-            # normalise mocap excerpt
-            mocap_excerpt_norm = (mocap_excerpt - mocap_mean) / (mocap_std + 1e-8) 
-            
-            X_mocap.append(mocap_excerpt_norm.cpu())
-            
-            # audio sequence part (input squence)
-            asI = mfI * audio_samples_per_mocap_frame
+            # get audio waveform excerpt
+            asI = mfI * audio_waveform_length_per_mocap_frame - audio_waveform_start_offset
             audio_waveform_start = asI
-            audio_waveform_end = audio_waveform_start + audio_waveform_input_seq_length
+            audio_waveform_end = audio_waveform_start + transformer_audio_waveform_full_seq_length
+            audio_waveform_excerpt = audio_waveform[0, audio_waveform_start:audio_waveform_end]
             
-            audio_waveform_excerpt = audio_data[audio_waveform_start:audio_waveform_end].unsqueeze(0).to(device)
-            audio_mels_excerpt = vocos.feature_extractor(audio_waveform_excerpt)
+            #print("audio_waveform_excerpt s ", audio_waveform_excerpt.shape)
             
-            #print("mfI ", mfI, " audio_mels_excerpt s ", audio_mels_excerpt.shape)
-            
-            audio_encoder_in = audio_mels_excerpt.reshape((1, audio_mel_filter_count, audio_latents_input_seq_length, audio_mel_count_vae))
-    
-            #print("mfI ", mfI, " audio_encoder_in s ", audio_encoder_in.shape)
-        
-            audio_encoder_in = audio_encoder_in.permute((2, 0, 1, 3))
-        
-            #print("mfI ", mfI, " audio_encoder_in 2 s ", audio_encoder_in.shape)
-        
-            audio_encoder_out_mu, audio_encoder_out_std = encoder(audio_encoder_in)
-            audio_encoder_out_std = torch.nn.functional.softplus(audio_encoder_out_std) + 1e-6
-            audio_latents = encoder.reparameterize(audio_encoder_out_mu, audio_encoder_out_std)
-            
-            #print("mfI ", mfI, " audio_latents s ", audio_latents.shape)
-            
-            audio_latents_norm = (audio_latents - audio_latents_mean) / (audio_latents_std + 1e-8)
-            
-            #print("mfI ", mfI, " audio_latents_norm s ", audio_latents_norm.shape)
-            
-            audio_latents_norm = audio_latents_norm.unsqueeze(0)
-            
-            #print("mfI ", mfI, " audio_latents_norm 2 s ", audio_latents_norm.shape)
-            
-            X_audio.append(audio_latents_norm.cpu())
-    
-            # audio sequence part (target squence)
-            
-            y_audio_grouped = []
-            
-            for tsI in range(mocap_output_seq_length):
-                
-                mfI2 = mfI + tsI + 1
-                
-                #print("mfI2 ", mfI2)
-                
-                asI = mfI2 * audio_samples_per_mocap_frame
-                audio_waveform_start = asI
-                audio_waveform_end = audio_waveform_start + audio_waveform_input_seq_length
-                
-                audio_waveform_excerpt = audio_data[audio_waveform_start:audio_waveform_end].unsqueeze(0).to(device)
-                audio_mels_excerpt = vocos.feature_extractor(audio_waveform_excerpt)
-                
-                #print("mfI2 ", mfI2, " audio_waveform_excerpt s ", audio_waveform_excerpt.shape)
-                #("mfI2 ", mfI2, " audio_mels_excerpt s ", audio_mels_excerpt.shape)
-                
-                audio_encoder_in = audio_mels_excerpt.reshape((1, audio_mel_filter_count, audio_latents_input_seq_length, audio_mel_count_vae))
-    
-                #print("mfI2 ", mfI2, " audio_encoder_in s ", audio_encoder_in.shape)
-            
-                audio_encoder_in = audio_encoder_in.permute((2, 0, 1, 3))
-            
-                #print("mfI2 ", mfI2, " audio_encoder_in 2 s ", audio_encoder_in.shape)
-            
-                audio_encoder_out_mu, audio_encoder_out_std = encoder(audio_encoder_in)
-                audio_encoder_out_std = torch.nn.functional.softplus(audio_encoder_out_std) + 1e-6
-                audio_latents = encoder.reparameterize(audio_encoder_out_mu, audio_encoder_out_std)
-                
-                #print("mfI2 ", mfI2, " audio_latents s ", audio_latents.shape)
-                
-                audio_latents_norm = (audio_latents - audio_latents_mean) / (audio_latents_std + 1e-8)
-                
-                #print("mfI2 ", mfI2, " audio_latents_norm s ", audio_latents_norm.shape)
-                
-                audio_latents_norm = audio_latents_norm.unsqueeze(0)
-                
-                #print("mfI2 ", mfI2, " audio_latents_norm 2 s ", audio_latents_norm.shape)
-    
-                y_audio_grouped.append(audio_latents_norm.cpu())
-                
-            y_audio_grouped = torch.cat(y_audio_grouped, dim=0)
-            
-            #print("y_audio_grouped s ", y_audio_grouped.shape)
-            
-            y_audio_grouped = y_audio_grouped.unsqueeze(0)
-            
-            #print("y_audio_grouped 2 s ", y_audio_grouped.shape)
-            
-            Y_audio.append(y_audio_grouped)
+            motion_mocap_dataset.append(motion_mocap_excerpt)
+            audio_waveform_dataset.append(audio_waveform_excerpt)
+
+motion_mocap_dataset = torch.stack(motion_mocap_dataset, dim=0)
+audio_waveform_dataset = torch.stack(audio_waveform_dataset, dim=0)
+
+print("motion_mocap_dataset s ", motion_mocap_dataset.shape)
+print("audio_waveform_dataset s ", audio_waveform_dataset.shape)
 
 
-X_mocap = torch.cat(X_mocap, dim=0)
-X_audio = torch.cat(X_audio, dim=0)
-Y_audio = torch.cat(Y_audio, dim=0)
+class MotionAudioDataset(Dataset):
+    def __init__(self, motion_mocap, audio_waveform):
+        self.motion_mocap = motion_mocap
+        self.audio_waveform = audio_waveform
 
-
-print("X_mocap s ", X_mocap.shape)
-print("X_audio s ", X_audio.shape)
-print("Y_audio s ", Y_audio.shape)
-
-
-class SequenceDataset(Dataset):
-    def __init__(self, X_mocap, X_audio, Y_audio):
-        self.X_mocap = X_mocap
-        self.X_audio = X_audio
-        self.Y_audio = Y_audio
-    
     def __len__(self):
-        return self.X_mocap.shape[0]
+        return self.motion_mocap.shape[0]
     
     def __getitem__(self, idx):
-        return self.X_mocap[idx, ...], self.X_audio[idx, ...], self.Y_audio[idx, ...]
+        return self.motion_mocap[idx, ...], self.audio_waveform[idx, ...]
 
-full_dataset = SequenceDataset(X_mocap, X_audio, Y_audio)
+full_dataset = MotionAudioDataset(motion_mocap_dataset, audio_waveform_dataset)
 
-x_item_mocap, x_item_audio, y_item_audio = full_dataset[0]
+item_motion_mocap, item_audio_waveform = full_dataset[0]
 
-print("x_item_mocap s ", x_item_mocap.shape)
-print("x_item_audio s ", x_item_audio.shape)
-print("y_item_audio s ", y_item_audio.shape)
+print("item_motion_mocap s ", item_motion_mocap.shape)
+print("item_audio_waveform s ", item_audio_waveform.shape)
 
 test_size = int(test_percentage * len(full_dataset))
 train_size = len(full_dataset) - test_size
@@ -780,11 +1014,10 @@ train_dataset, test_dataset = torch.utils.data.random_split(full_dataset, [train
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-x_batch_mocap, x_batch_audio, y_batch_audio = next(iter(train_loader))
+batch_motion_mocap, batch_audio_waveoform = next(iter(train_loader))
 
-print("x_batch_mocap s ", x_batch_mocap.shape)
-print("x_batch_audio s ", x_batch_audio.shape)
-print("y_batch_audio s ", y_batch_audio.shape)
+print("batch_motion_mocap s ", batch_motion_mocap.shape)
+print("batch_audio_waveoform s ", batch_audio_waveoform.shape)
 
 """
 Create Models - PositionalEncoding
@@ -823,7 +1056,6 @@ class PositionalEncoding(nn.Module):
 """
 Create Models - Transformer
 """
-
 
 class Transformer(nn.Module):
 
@@ -908,8 +1140,9 @@ class Transformer(nn.Module):
         
         return out
 
-transformer = Transformer(mocap_dim=mocap_dim, 
-                          audio_dim=audio_dim,
+
+transformer = Transformer(mocap_dim=motion_vae_latent_dim, 
+                          audio_dim=audio_vae_latent_dim,
                           embed_dim=transformer_embed_dim, 
                           num_heads=transformer_head_count, 
                           num_encoder_layers=transformer_layer_count, 
@@ -922,21 +1155,96 @@ print(transformer)
 if load_weights and transformer_load_weights_path:
     transformer.load_state_dict(torch.load(transformer_load_weights_path, map_location=device))
 
+# test transformer model
 
-# test model
+batch_motion_mocap, batch_audio_waveform = next(iter(train_loader))
 
-x_mocap_batch, x_audio_batch, y_audio_batch = next(iter(train_loader))
+batch_motion_mocap = batch_motion_mocap.to(device)
+batch_audio_waveform = batch_audio_waveform.to(device)
 
-transformer_mocap_input = x_mocap_batch[:, :mocap_input_seq_length, ...].to(device)
-transformer_audio_input = x_audio_batch.to(device)
-transformer_audio_target = y_audio_batch[:, 0, ...].to(device)
+print("batch_motion_mocap s ", batch_motion_mocap.shape)
+print("batch_audio_waveform s ", batch_audio_waveform.shape)
 
-transformer_audio_output = transformer(transformer_mocap_input, transformer_audio_input)
+transformer_motion_latents = []
+transformer_audio_latents = []
 
-print("transformer_mocap_input s ", transformer_mocap_input.shape)
-print("transformer_audio_input s ", transformer_audio_input.shape)
-print("transformer_audio_target s ", transformer_audio_target.shape)
-print("transformer_audio_output s ", transformer_audio_output.shape)
+for mfI in range(0, transformer_mocap_input_length + transformer_mocap_output_length, 1):
+    
+    print("mfI ", mfI)
+    
+    mocap_motion_excerpt = batch_motion_mocap[:, mfI:mfI + motion_vae_mocap_length, ...]
+
+    print("mocap_motion_excerpt s ", mocap_motion_excerpt.shape)
+    
+    mocap_motion_excerpt_norm = (mocap_motion_excerpt - mocap_mean.unsqueeze(0)) / (mocap_std.unsqueeze(0) + 1e-8)
+    motion_encoder_input = mocap_motion_excerpt_norm
+    
+    print("motion_encoder_input s ", motion_encoder_input.shape)
+    
+    motion_encoder_output_mu, motion_encoder_output_std = motion_encoder(motion_encoder_input)
+    mu = motion_encoder_output_mu
+    std = torch.nn.functional.softplus(motion_encoder_output_std) + 1e-8
+    motion_latents = motion_encoder.reparameterize(mu, std)
+    
+    print("motion_latents s ", motion_latents.shape)
+    
+    motion_latents_norm = (motion_latents - motion_latents_mean) / (motion_latents_std + 1e-8)
+    
+    print("motion_latents_norm s ", motion_latents_norm.shape)
+    
+    transformer_motion_latents.append(motion_latents_norm)
+    
+    asI = mfI * audio_waveform_length_per_mocap_frame
+    
+    print("asI ", asI)
+    
+    audio_waveform_excerpt = batch_audio_waveform[:, asI:asI+audio_vocos_waveform_length]
+    
+    print("audio_waveform_excerpt s ", audio_waveform_excerpt.shape)
+    
+    audio_mels_excerpt = vocos.feature_extractor(audio_waveform_excerpt)
+    
+    print("audio_mels_excerpt s ", audio_mels_excerpt.shape)
+    
+    audio_mels_excerpt = audio_mels_excerpt[:, :, -audio_vae_mel_count:]
+    
+    print("audio_mels_excerpt 2 s ", audio_mels_excerpt.shape)
+    
+    audio_mels_excerpt_norm = (audio_mels_excerpt - audio_mean) / (audio_std + 1e-8)
+    audio_encoder_input = audio_mels_excerpt_norm.unsqueeze(1)
+    
+    print("audio_encoder_input s ", audio_encoder_input.shape)
+    
+    audio_encoder_output_mu, audio_encoder_output_std = audio_encoder(audio_encoder_input)
+    mu = audio_encoder_output_mu
+    std = torch.nn.functional.softplus(audio_encoder_output_std) + 1e-8
+    audio_latents = audio_encoder.reparameterize(mu, std)
+    
+    print("audio_latents s ", audio_latents.shape)
+    
+    audio_latents_norm = (audio_latents - audio_latents_mean) / (audio_latents_std + 1e-8)
+    
+    print("audio_latents_norm s ", audio_latents_norm.shape)
+    
+    transformer_audio_latents.append(audio_latents_norm)
+    
+transformer_motion_latents = torch.stack(transformer_motion_latents, dim=1)
+transformer_audio_latents = torch.stack(transformer_audio_latents, dim=1)
+
+print("transformer_motion_latents s ", transformer_motion_latents.shape)
+print("transformer_audio_latents s ", transformer_audio_latents.shape)
+
+transformer_input_motion_latents = transformer_motion_latents[:, :transformer_mocap_input_length, :]
+transformer_input_audio_latents = transformer_audio_latents[:, :transformer_mocap_input_length, :]
+transformer_target_audio_latents = transformer_audio_latents[:, 1:1 + transformer_mocap_input_length, :]
+
+transformer_output_audio_latents = transformer(transformer_input_motion_latents, transformer_input_audio_latents)
+
+print("transformer_input_motion_latents s ", transformer_input_motion_latents.shape)
+print("transformer_input_audio_latents s ", transformer_input_audio_latents.shape)
+print("transformer_target_audio_latents s ", transformer_target_audio_latents.shape)
+print("transformer_output_audio_latents s ", transformer_output_audio_latents.shape)
+
 
 """
 Training
@@ -977,20 +1285,174 @@ def audio_perc_loss(y_wave, yhat_wave):
     
     return apl
 
-def loss(y_latents_norm, yhat_latents_norm):
+"""
+Training and Test Steps
+"""    
+
+"""
+Motion2Audio Transformer Training and Test Step
+"""
+
+motion_latents_std.shape
+
+
+def transformer_train_step(motion_mocap, audio_waveform):
     
-    #print("loss begin")
+    print("motion_mocap s ", motion_mocap.shape)
+    print("audio_waveform s ", audio_waveform.shape)
     
-    #print("y_latents_norm s ", y_latents_norm.shape, " yhat_latents_norm s ", yhat_latents_norm.shape)
+    transformer_audio_output = None
+    _avg_loss = 0.0
     
-    batch_size = y_latents_norm.shape[-1]
+    # outer loop
+    for mfI1 in range(0, transformer_mocap_output_length, 1):
+        
+        # inner loop
+        motion_latents_norm = []
+        audio_latents_norm = []
+        
+        for mfI2 in range(0, transformer_mocap_input_length + 1, 1):
+                        
+            # motion mocap excerpt
+            mfI = mfI1 + mfI2
+            print("mfI1 ", mfI1, " mfI2 ", mfI2, " mfI ", mfI)
+            motion_mocap_excerpt = motion_mocap[:, mfI:mfI + motion_vae_mocap_length, ... ]
+            print("motion_mocap_excerpt s ", motion_mocap_excerpt.shape)
+            
+            # audio waveform excerpt
+            asI = mfI * audio_waveform_length_per_mocap_frame
+            print("asI ", asI)
+            audio_waveform_excerpt = audio_waveform[:, asI:asI+audio_vocos_waveform_length]
+            print("audio_waveform_excerpt s ", audio_waveform_excerpt.shape)
+            
+            # convert audio waveform excerpt to audio mels
+            audio_mels_excerpt = vocos.feature_extractor(audio_waveform_excerpt)
+            print("audio_mels_excerpt s ", audio_mels_excerpt.shape)
+            
+            # get last audio_vae_mel_count mels
+            audio_mels_excerpt = audio_mels_excerpt[:, :, -audio_vae_mel_count:]
+            print("audio_mels_excerpt 2 s ", audio_mels_excerpt.shape)
+            
+            # normalise motion mocap excerpt
+            motion_mocap_norm_excerpt = (motion_mocap_excerpt - mocap_mean.unsqueeze(0)) / (mocap_std + 1e-8)
+            print("motion_mocap_norm_excerpt s ", motion_mocap_excerpt.shape)
+            
+            # normalise audio mels excerpt
+            audio_mels_norm_excerpt = (audio_mels_excerpt - audio_mean) / (audio_std + 1e-8)
+            print("audio_mels_norm_excerpt s ", audio_mels_norm_excerpt.shape)
+            
+            # calculate motion latent
+            motion_encoder_input = motion_mocap_norm_excerpt
+            motion_encoder_output_mu, motion_encoder_output_std = motion_encoder(motion_encoder_input)
+            mu = motion_encoder_output_mu
+            std = torch.nn.functional.softplus(motion_encoder_output_std) + 1e-8
+            motion_latent = motion_encoder.reparameterize(mu, std)
+            print("motion_latent s ", motion_latent.shape)
+            
+            # calculate audio latents
+            audio_encoder_input = audio_mels_norm_excerpt.unsqueeze(1)
+            audio_encoder_output_mu, audio_encoder_output_std = audio_encoder(audio_encoder_input)
+            mu = audio_encoder_output_mu
+            std = torch.nn.functional.softplus(audio_encoder_output_std) + 1e-8
+            audio_latent = audio_encoder.reparameterize(mu, std)
+            print("audio_latent s ", audio_latent.shape)
+            
+            # normalise motion latent
+            motion_latent_norm = (motion_latent - motion_latents_mean) / (motion_latents_std + 1e-8)
+            print("motion_latent_norm s ", motion_latent_norm.shape)
+            
+            # normalise audio latent
+            audio_latent_norm = (audio_latent - audio_latents_mean) / (audio_latents_std + 1e-8)
+            print("audio_latent_norm s ", audio_latent_norm.shape)
+            
+            # append motion latent
+            motion_latents_norm.append(motion_latent_norm)
+            
+            # append audio latent
+            audio_latents_norm.append(audio_latent_norm)
+            
+        # stack motion latents norm 
+        motion_latents_norm = torch.stack(motion_latents_norm, dim=1)
+        print("motion_latents_norm s ", motion_latents_norm.shape)
+        
+        # stack audio latents norm 
+        audio_latents_norm = torch.stack(audio_latents_norm, dim=1)
+        print("audio_latents_norm s ", audio_latents_norm.shape)
+            
+        # get transformer motion input
+        transformer_motion_input = motion_latents_norm[:, :transformer_mocap_input_length, :]
+        print("transformer_motion_input s ", transformer_motion_input.shape)
+        
+        # get transformer audio input
+        if mfI1 == 0: # teacher forcing
+            transformer_audio_input = audio_latents_norm[:, :transformer_mocap_input_length, :]
+        else:
+            transformer_audio_input = transformer_audio_output.detach()
+        print("transformer_audio_input s ", transformer_audio_input.shape)
+        
+        # get transformer audio target
+        transformer_audio_target = audio_latents_norm[:, 1:transformer_mocap_input_length+1, :]
+        print("transformer_audio_target s ", transformer_audio_target.shape)
+        
+        # calculate transformer audio output
+        transformer_audio_output = transformer(transformer_motion_input, transformer_audio_input)
+        print("transformer_audio_output s ", transformer_audio_output.shape)
+        
+        # compute audio latent reconstruction loss
+        _audio_latents_loss = audio_latents_loss(transformer_audio_target.reshape(-1, audio_vae_latent_dim), transformer_audio_output.reshape(-1, audio_vae_latent_dim))
+        
+        # compute audio mel reconstruction loss
+        transformer_audio_mels_norm_target = audio_decoder(transformer_audio_target.reshape(-1, audio_vae_latent_dim))
+        transformer_audio_mels_norm_output = audio_decoder(transformer_audio_output.reshape(-1, audio_vae_latent_dim))  
+        
+        print("transformer_audio_mels_norm_target s ", transformer_audio_mels_norm_target.shape)
+        print("transformer_audio_mels_norm_output s ", transformer_audio_mels_norm_output.shape)
+        
+        # calculate losses and perform backprop
+        _loss = _audio_latents_loss
+
+        # Backpropagation
+        optimizer.zero_grad()
+        _loss.backward()
+        optimizer.step()
+
+        _avg_loss += _loss.detach().cpu().item()
+        
+        return _avg_loss
+
+            
+# test transformer train step
+
+transformer_motion_mocap, transformer_audio_waveform = next(iter(train_loader))
+transformer_motion_mocap = transformer_motion_mocap.to(device)
+transformer_audio_waveform = transformer_audio_waveform.to(device)
+
+_ = transformer_train_step(transformer_motion_mocap, transformer_audio_waveform)
+
+
+
+
+
+x_mocap_batch = x_mocap_batch.to(device)
+x_audio_batch = x_audio_batch.to(device)
+y_audio_batch = y_audio_batch.to(device)
+_loss = train_step(x_mocap_batch, x_audio_batch, y_audio_batch)
+
+
+def audio_loss(y_latents_norm, yhat_latents_norm):
     
-    #print("batch_size s ", batch_size)
+    print("loss begin")
     
-    y_latents_norm = y_latents_norm.reshape((-1, latent_dim))
-    yhat_latents_norm = yhat_latents_norm.reshape((-1, latent_dim))
+    print("y_latents_norm s ", y_latents_norm.shape, " yhat_latents_norm s ", yhat_latents_norm.shape)
     
-    #print("y_latents_norm 2 s ", y_latents_norm.shape, " yhat_latents_norm 2 s ", yhat_latents_norm.shape)
+    batch_size = y_latents_norm.shape[0]
+    
+    print("batch_size s ", batch_size)
+    
+    y_latents_norm = y_latents_norm.reshape((-1, audio_vae_latent_dim))
+    yhat_latents_norm = yhat_latents_norm.reshape((-1, audio_vae_latent_dim))
+    
+    print("y_latents_norm 2 s ", y_latents_norm.shape, " yhat_latents_norm 2 s ", yhat_latents_norm.shape)
     
     # calculate audio latent loss
     #start_time = time.time()
@@ -1009,31 +1471,51 @@ def loss(y_latents_norm, yhat_latents_norm):
     y_latents = y_latents_norm * audio_latents_std + audio_latents_mean
     yhat_latents = yhat_latents_norm * audio_latents_std + audio_latents_mean
     
-    #print("y_latents s ", y_latents.shape, " yhat_latents s ", yhat_latents.shape)
+    print("y_latents s ", y_latents.shape, " yhat_latents s ", yhat_latents.shape)
     
-    # decode latents into mels
-    y_mels_regrouped = decoder(y_latents)
-    yhat_mels_regrouped = decoder(yhat_latents)
+    # decode latents into normalised mels
+    y_mels_norm = audio_decoder(y_latents)
+    yhat_mels_norm = audio_decoder(yhat_latents)
+    
+    print("y_mels_norm s ", y_mels_norm.shape, " yhat_mels_norm s ", yhat_mels_norm.shape)
+    
+    # calculate audio mel loss
+    y_mels_norm_2 = y_mels_norm.squeeze(1).permute(0, 2, 1)
+    _audio_mel_loss = audio_mel_loss()
+    
+    
+    # denormalize mels
+    y_mels_norm = y_mels_norm.squeeze(1)
+    yhat_mels_norm = yhat_mels_norm.squeeze(1)
+    
+    print("y_mels_norm 2 s ", y_mels_norm.shape, " yhat_mels_norm 2 s ", yhat_mels_norm.shape)
+    
+    y_mels = y_mels_norm * audio_std + audio_mean
+    yhat_mels = yhat_mels_norm * audio_std + audio_mean
+    
+    print("y_mels s ", y_mels.shape, " yhat_mels s ", yhat_mels.shape)
+    
     
     #print("2")
+    """
+    print("y_mels_regrouped s ", y_mels_regrouped.shape, " yhat_mels_regrouped s ", yhat_mels_regrouped.shape)
     
-    #print("y_mels_regrouped s ", y_mels_regrouped.shape, " yhat_mels_regrouped s ", yhat_mels_regrouped.shape)
-    
+
     # regroup mels
-    y_mels = y_mels_regrouped.reshape(batch_size, -1, 1, audio_mel_filter_count, audio_mel_count_vae)
-    yhat_mels = yhat_mels_regrouped.reshape(batch_size, -1, 1, audio_mel_filter_count, audio_mel_count_vae)
+    y_mels = y_mels_regrouped.reshape(batch_size, -1, 1, audio_mel_filter_count, audio_vae_mel_count)
+    yhat_mels = yhat_mels_regrouped.reshape(batch_size, -1, 1, audio_mel_filter_count, audio_vae_mel_count)
     
-    #print("y_mels s ", y_mels.shape, " yhat_mels s ", yhat_mels.shape)
+    print("y_mels s ", y_mels.shape, " yhat_mels s ", yhat_mels.shape)
 
     y_mels = y_mels.permute(0, 2, 3, 1, 4) 
     yhat_mels = yhat_mels.permute(0, 2, 3, 1, 4) 
     
-    #print("y_mels 2 s ", y_mels.shape, " yhat_mels 2 s ", yhat_mels.shape)
+    print("y_mels 2 s ", y_mels.shape, " yhat_mels 2 s ", yhat_mels.shape)
     
     y_mels = y_mels.reshape(batch_size, audio_mel_filter_count, -1) 
     yhat_mels = yhat_mels.reshape(batch_size, audio_mel_filter_count, -1) 
     
-    #print("y_mels 3 s ", y_mels.shape, " yhat_mels 3 s ", yhat_mels.shape)
+    print("y_mels 3 s ", y_mels.shape, " yhat_mels 3 s ", yhat_mels.shape)
     
     # calculate audio mel loss
     _audio_mel_loss = audio_mel_loss(y_mels, yhat_mels)
@@ -1052,12 +1534,12 @@ def loss(y_latents_norm, yhat_latents_norm):
     
     #print("4")
     
-    #print("y_waveform s ", y_waveform.shape, " yhat_waveform s ", yhat_waveform.shape)
+    print("y_waveform s ", y_waveform.shape, " yhat_waveform s ", yhat_waveform.shape)
     
     y_waveform = y_waveform.unsqueeze(1)
     yhat_waveform = yhat_waveform.unsqueeze(1)
     
-    #print("y_waveform 2 s ", y_waveform.shape, " yhat_waveform 2 s ", yhat_waveform.shape)
+    print("y_waveform 2 s ", y_waveform.shape, " yhat_waveform 2 s ", yhat_waveform.shape)
     
     # calculate audio perceptual loss
     _audio_perc_loss = audio_perc_loss(y_waveform, yhat_waveform)
@@ -1076,6 +1558,13 @@ def loss(y_latents_norm, yhat_latents_norm):
     #print("loss end")
     
     return _total_loss
+    """
+
+
+"""
+# test audio loss function
+_ = audio_loss(transformer_target_audio_latents, transformer_output_audio_latents)
+"""
 
 def train_step(x_mocap, x_audio, y_audio):
 
